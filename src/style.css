@@ -1,0 +1,54 @@
+:root {
+	--size: 48px;
+	--offset: 16px;
+	--gap: 12px;
+	--rows: 8;
+	--cols: 6;
+	--width: calc(cols * size + (cols - 1) * gap);
+	--height: calc(rows * size + (rows - 1) * gap);
+}
+
+* { box-sizing: border-box }
+
+body {
+	margin: 0;
+	width: 100vw;
+	height: 100vh;
+	display: flex;
+	place-items: center;
+	justify-content: center;
+	align-items: center;
+}
+
+#app {
+	position: relative;
+	border-radius: 12px;
+	background: black;
+}
+
+.background {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	padding: var(--offset);
+	display: grid;
+	grid-template-columns: repeat(var(--cols), 1fr);
+	grid-template-rows: repeat(var(--rows), 1fr);
+	column-gap: var(--gap);
+	row-gap: var(--gap);
+}
+
+.cell {
+	width: var(--size);
+	height: var(--size);
+	border-radius: 12%;
+	background: gray;
+}
+
+#foreground {
+	position: absolute;
+	top: var(--offset);
+	left: var(--offset);
+}
