@@ -18,7 +18,14 @@ const state = {
 		cells: new Konva.Layer(),
 		moving_tile: new Konva.Layer()
 	},
-	tile: { x: -1, y: -1 }
+	tile: { x: -1, y: -1 },
+	interval: "",
+	interval_time: 1200,
+	interval_count: 0,
+	min_interval: 300,
+	current_time: 0,
+	current_interval: "",
+	timer: -1
 }
 
 for (let idx = 0; idx < state.max_num; ++idx) {
@@ -157,4 +164,104 @@ const move_rows = () => {
 	}
 }
 
-add_row()
+const end_game = () =>  state.cells.length >= rows || (state.timer > 0 && state.timer == state.current_time)
+
+const decrement_interval = () => {
+	if (state.count >= 3 && state.interval_time > state.min_interval) {
+		state.interval_time -= 100
+		state.count = 0
+	}
+	else return;
+}
+
+const clear_intervals = () => {
+	clearInterval(state.interval)
+	state.interval = ""
+	clearInterval(state.current_interval)
+	state.current_interval = ""
+}
+
+const timer_ipt = document.getElementById("timer-ipt")
+const start_btn = document.getElementById("start-btn")
+const pause_btn = document.getElementById("pause-btn")
+const stop_btn = document.getElementById("stop-btn")
+const user_msg = document.getElementById("user-msg")
+
+timer_ipt.addEventListener("", evt => {
+	const ipt = evt.target.value.split(":")
+	if (!ipt.length || !ipt[0]) {
+		state.timer = -1
+		return;
+	}
+	const time = ipt[0] * 1000 * 60 + (ipt[1] || 0)
+	state.timer = time
+})
+
+start_btn.addEventListener("click", () => {
+	user_msg.textContent = "w (focus timer), s (pause), d (stop)"
+	const time = !state.current_interval && state.current_time
+		? state.interval_time - state.current_time
+		: state.interval_time
+	state.interval = setInterval(() => {
+		decrement_interval()
+		if (!end_game())
+			add_row()
+		else {
+			clear_intervals()
+			user_msg.textContent = `Game end: reached ${state.high_num}${ state.timer > 0 ? "in " + state.timer : ""}`
+		}
+	}, time)
+	state.current_interval = setInterval(() => {
+		state.current_time++
+		if (state.timer) {
+			const rem_time = state.timer - state.current_time
+			const min_to_ms = 1000 * 60
+			const [min, sec] = [
+				rem_time / min_to_ms,
+				rem_time % min_to_ms
+			]
+			timer_ipt.value = `${min || ""}:${sec || "00"}`
+		}
+	}, 1000)
+})
+
+pause_btn.addEventListener("click", () => {
+	clear_intervals()
+	user_msg.textContent = "Paused. Click start or press a."
+})
+
+stop_btn.addEventListener("click", () => {
+	user_msg.textContent = "Click start or press a."
+	clear_intervals()
+	state.high_num = 5
+	state.cells = []
+	state.layers.cells.destroy()
+	state.layers.cells = new Konva.Layer()
+	stage.add(state.layers.cells)
+	state.layers.moving_tile.destroy()
+	state.layers.moving_tile = new Konva.Layer()
+	stage.add(state.layers.moving_tile)
+	state.tile = { x: -1, y: -1 }
+	state.interval_time = 1200
+	state.interval_count = 0
+	state.current_time = 0
+})
+
+document.addEventListener("keydown", evt => {
+	if (!["w", "a", "s", "d"].includes(evt.key))
+		return;
+	switch (evt.key) {
+		case "w":
+			timer_ipt.focus()
+			break;
+		case "a":
+			start_btn.click()
+			break;
+		case "s":
+			pause_btn.click()
+			break;
+		case "d":
+			stop_btn.click()
+			break;
+	}
+})
