@@ -27,17 +27,36 @@ nav {
 	padding: var(--gap);
 	border: 1px solid black;
 	border-radius: 12px;
+	display: flex;
+	align-items: center;
 
-	input { width: 100% }
-
-	button {
-		margin: var(--gap) var(--offset);
+	input {
+		width: 100px;
+		height: 36px;
 		padding: 4px 6px;
-		font-family: monospace;
-		&:first-of-type { margin-left: 0 }
 	}
 
-	div { width: 100% }
+	button {
+		margin: 0 6px;
+		padding: 4px 6px;
+		canvas {
+			width: 20px;
+			height: 20px;
+		}
+		&:hover {
+			box-shadow: 2px 2px 2px inset #000e;
+		}
+	}
+
+	#user-msg {
+		margin-left: var(--gap);
+		display: flex;
+		span {
+			min-width: 20px;
+			border-bottom: 1px solid black;
+			display: inline-block;
+		}
+	}
 }
 
 #app {

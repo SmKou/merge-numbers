@@ -217,11 +217,51 @@ const clear_intervals = () => {
 	state.current_interval = ""
 }
 
-const timer_ipt = document.getElementById("timer-ipt")
-const start_btn = document.getElementById("start-btn")
-const pause_btn = document.getElementById("pause-btn")
-const stop_btn = document.getElementById("stop-btn")
-const user_msg = document.getElementById("user-msg")
+const $ = (css_select) => document.querySelector(css_select)
+const get_cvs = (e) => e.querySelector("canvas")
+
+const timer_ipt = $("#timer-ipt")
+
+const start_btn = $("#start-btn")
+const draw_start = () => {
+	const cvs = get_cvs(start_btn)
+	cvs.width = 20
+	cvs.height = 20
+	const ctx = cvs.getContext("2d")
+	ctx.beginPath()
+	ctx.moveTo(2, 0)
+	ctx.lineTo(20, 10)
+	ctx.lineTo(2, 20)
+	ctx.closePath()
+	ctx.fillStyle = "#000"
+	ctx.fill()
+}
+draw_start()
+
+const pause_btn = $("#pause-btn")
+const draw_pause = () => {
+	const cvs = get_cvs(pause_btn)
+	cvs.width = 20
+	cvs.height = 20
+	const ctx = cvs.getContext("2d")
+	ctx.fillStyle = "#000"
+	ctx.fillRect(2, 2, 6, 18)
+	ctx.fillRect(10, 2, 6, 18)
+}
+draw_pause()
+
+const stop_btn = $("#stop-btn")
+const draw_stop = () => {
+	const cvs = get_cvs(stop_btn)
+	cvs.width = 20
+	cvs.height = 20
+	const ctx = cvs.getContext("2d")
+	ctx.fillStyle = "#000"
+	ctx.fillRect(2, 3, 16, 16)
+}
+draw_stop()
+
+const user_msg = $("#user-msg")
 
 start_btn.addEventListener("click", () => {
 	user_msg.textContent = "w (focus timer), s (pause), d (stop)"
