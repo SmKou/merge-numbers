@@ -1,69 +1,16 @@
 import Konva from 'konva'
+import ui from 'UI'
+import grid from 'Grid'
 import './style.css'
 
-const size = 48
-const offset = 16
-const gap = 12
-const rows = 8
-const cols = 6
-const width = cols * size + (cols - 1) * gap
-const height = rows * size + (rows - 1) * gap
+const $ = (css_select) => document.querySelector(css_select)
 
-const state = {
-	high_num: 5,
-	max_num: 10,
-	cells: [],
-	colors: [],
-	layers: {
-		cells: new Konva.Layer(),
-		moving_tile: new Konva.Layer()
-	},
-	tile: { x: -1, y: -1 },
-	interval: "",
-	interval_time: 3600,
-	interval_count: 0,
-	min_interval: 1200,
-	current_time: 0,
-	current_interval: "",
-	timer: -1
-}
-
-for (let idx = 0; idx < state.max_num; ++idx) {
-	const level = Math.floor(idx / 5)
-	const base_color = 195 + level * (60 / state.max_num)
-
-	let red = 0, green = 0, blue = 0;
-	switch (idx % 5) {
-		case 1:
-			red = base_color
-			blue = base_color
-			break;
-		case 2:
-			green = base_color
-			break;
-		case 3:
-			green = base_color
-			blue = base_color
-			break;
-		case 4:
-			blue = base_color
-			break;
-		default:
-			red = base_color
-	}
-	state.colors.push(`rgb(${red}, ${green}, ${blue})`)
-}
-
-const app = document.getElementById('app')
+const app = $("#app")
 app.style.width = (width + offset * 2) + "px"
 app.style.height = (height + offset * 2) + "px"
-document.querySelector("nav").style.width = app.style.width
+$("nav").style.width = app.style.width
 
-const stage = new Konva.Stage({
-	container: 'foreground',
-	width,
-	height
-})
+
 stage.add(state.layers.cells)
 stage.add(state.layers.moving_tile)
 
@@ -162,104 +109,16 @@ const add_row = (i = 0, row = []) => {
 	}
 }
 
-const move_rows = () => {
-	const period = 300
-	for (let y = state.cells.length - 1; y >= 0; --y) {
-		const dist = y > 0
-			? size + gap
-			: size
-		const speed = dist / period
-		const y_orig = state.cells[y][0].y()
-		const y_dest = y_orig - dist
-		state.cells[y].forEach((cell) => {
-			if (!cell) return;
-			const anim = new Konva.Animation(frame => {
-				cell.y(y_orig - speed * frame.time)
-				if (speed * frame.time >= dist) {
-					cell.y(y_dest)
-					anim.stop()
-				}
-			}, state.layers.cells)
-			anim.start()
-		})
-	}
-}
-
-const time_to_ms = (time) => {
-	const [min, sec] = time.split(":");
-	const int_min = Number(min) || 0
-	const int_sec = Number(sec) || 0
-	return int_min * 60 * 1000 + int_sec * 1000
-}
-
-const ms_to_time = (ms) => {
-	const min = Math.floor(ms / (1000 * 60)) || "00"
-	const sec = Math.floor(ms % (1000 * 60) / 1000) || "00"
-	return `${min}:${sec}`
-}
-
-const end_game = () =>  state.cells.length >= rows - 1 || (state.timer > 0 && state.timer == state.current_time)
-
-const decrement_interval = () => {
-	if (state.count >= 3 && state.interval_time > state.min_interval) {
-		state.interval_time -= 600
-		state.count = 0
-	}
-	else
-		state.count++
-}
-
-const clear_intervals = () => {
-	clearInterval(state.interval)
-	state.interval = ""
-
-	clearInterval(state.current_interval)
-	state.current_interval = ""
-}
-
-const $ = (css_select) => document.querySelector(css_select)
-const get_cvs = (e) => e.querySelector("canvas")
-
 const timer_ipt = $("#timer-ipt")
 
 const start_btn = $("#start-btn")
-const draw_start = () => {
-	const cvs = get_cvs(start_btn)
-	cvs.width = 20
-	cvs.height = 20
-	const ctx = cvs.getContext("2d")
-	ctx.beginPath()
-	ctx.moveTo(2, 0)
-	ctx.lineTo(20, 10)
-	ctx.lineTo(2, 20)
-	ctx.closePath()
-	ctx.fillStyle = "#000"
-	ctx.fill()
-}
-draw_start()
+ui.draw_start(start_btn)
 
 const pause_btn = $("#pause-btn")
-const draw_pause = () => {
-	const cvs = get_cvs(pause_btn)
-	cvs.width = 20
-	cvs.height = 20
-	const ctx = cvs.getContext("2d")
-	ctx.fillStyle = "#000"
-	ctx.fillRect(2, 2, 6, 18)
-	ctx.fillRect(10, 2, 6, 18)
-}
-draw_pause()
+ui.draw_pause(pause_btn)
 
 const stop_btn = $("#stop-btn")
-const draw_stop = () => {
-	const cvs = get_cvs(stop_btn)
-	cvs.width = 20
-	cvs.height = 20
-	const ctx = cvs.getContext("2d")
-	ctx.fillStyle = "#000"
-	ctx.fillRect(2, 3, 16, 16)
-}
-draw_stop()
+ui.draw_stop(stop_btn)
 
 const user_msg = $("#user-msg")
 
