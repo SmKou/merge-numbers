@@ -20,9 +20,9 @@ const state = {
 	},
 	tile: { x: -1, y: -1 },
 	interval: "",
-	interval_time: 1200,
+	interval_time: 3600,
 	interval_count: 0,
-	min_interval: 300,
+	min_interval: 1200,
 	current_time: 0,
 	current_interval: "",
 	timer: -1
@@ -57,6 +57,7 @@ for (let idx = 0; idx < state.max_num; ++idx) {
 const app = document.getElementById('app')
 app.style.width = (width + offset * 2) + "px"
 app.style.height = (height + offset * 2) + "px"
+document.querySelector("nav").style.width = app.style.width
 
 const stage = new Konva.Stage({
 	container: 'foreground',
@@ -104,6 +105,8 @@ const add_row = (i = 0, row = []) => {
 		}
 		else {
 			// check if movement is valid: true = move
+			// does not move through tile
+			// does not end on tile
 			// check if tile beneath is same number: true = merge
 		}
 	})
@@ -117,7 +120,21 @@ const add_row = (i = 0, row = []) => {
 	})
 
 	tile.on('dragmove', () => {
-		tile.y()
+		// y-lim
+		// x-lims
+
+		let full = false, i = state.cells.length - 1
+		while (!full && i >= 0) {
+			const n = state.cells[i].filter(cell => !cell).length
+			if (n > 0)
+				i--
+			else
+				full = true
+		}
+		const y_lim = full
+			? state.cells[i][0].y()
+			: height
+		tile.y(Math.min(tile.y(), y_lim))
 	})
 
 	tile.on('dragend', () => {
@@ -125,6 +142,8 @@ const add_row = (i = 0, row = []) => {
 		const x = Math.floor(pos.x / (size + gap))
 		const y = (rows - 1) - Math.floor(pos.y / (size + gap))
 		// check if movement is valid: true = move
+		// drops into place
+
 		// check if tile beneath is same number: true = merge
 		tile.moveTo(state.layers.cells)
 		state.layers.cells.draw()
@@ -146,37 +165,54 @@ const add_row = (i = 0, row = []) => {
 const move_rows = () => {
 	const period = 300
 	for (let y = state.cells.length - 1; y >= 0; --y) {
-		const div = y == 0 ? 0 : offset
-		const speed = (size + div) / period
+		const dist = y > 0
+			? size + gap
+			: size
+		const speed = dist / period
 		const y_orig = state.cells[y][0].y()
-		const y_dest = y_orig - (size + div)
+		const y_dest = y_orig - dist
 		state.cells[y].forEach((cell) => {
 			if (!cell) return;
 			const anim = new Konva.Animation(frame => {
 				cell.y(y_orig - speed * frame.time)
-				if (speed * frame.time > size + div) {
+				if (speed * frame.time >= dist) {
 					cell.y(y_dest)
 					anim.stop()
 				}
 			}, state.layers.cells)
-			setTimeout(() => anim.start(), 300)
+			anim.start()
 		})
 	}
 }
 
-const end_game = () =>  state.cells.length >= rows || (state.timer > 0 && state.timer == state.current_time)
+const time_to_ms = (time) => {
+	const [min, sec] = time.split(":");
+	const int_min = Number(min) || 0
+	const int_sec = Number(sec) || 0
+	return int_min * 60 * 1000 + int_sec * 1000
+}
+
+const ms_to_time = (ms) => {
+	const min = Math.floor(ms / (1000 * 60)) || "00"
+	const sec = Math.floor(ms % (1000 * 60) / 1000) || "00"
+	return `${min}:${sec}`
+}
+
+const end_game = () =>  state.cells.length >= rows - 1 || (state.timer > 0 && state.timer == state.current_time)
 
 const decrement_interval = () => {
 	if (state.count >= 3 && state.interval_time > state.min_interval) {
-		state.interval_time -= 100
+		state.interval_time -= 600
 		state.count = 0
 	}
-	else return;
+	else
+		state.count++
 }
 
 const clear_intervals = () => {
 	clearInterval(state.interval)
 	state.interval = ""
+
 	clearInterval(state.current_interval)
 	state.current_interval = ""
 }
@@ -187,18 +223,9 @@ const pause_btn = document.getElementById("pause-btn")
 const stop_btn = document.getElementById("stop-btn")
 const user_msg = document.getElementById("user-msg")
 
-timer_ipt.addEventListener("", evt => {
-	const ipt = evt.target.value.split(":")
-	if (!ipt.length || !ipt[0]) {
-		state.timer = -1
-		return;
-	}
-	const time = ipt[0] * 1000 * 60 + (ipt[1] || 0)
-	state.timer = time
-})
-
 start_btn.addEventListener("click", () => {
 	user_msg.textContent = "w (focus timer), s (pause), d (stop)"
+	add_row()
 	const time = !state.current_interval && state.current_time
 		? state.interval_time - state.current_time
 		: state.interval_time
@@ -207,27 +234,26 @@ start_btn.addEventListener("click", () => {
 		if (!end_game())
 			add_row()
 		else {
-			clear_intervals()
-			user_msg.textContent = `Game end: reached ${state.high_num}${ state.timer > 0 ? "in " + state.timer : ""}`
+			const game_ended = `Game end: reached ${state.high_num}${ state.timer > 0 ? "in " + state.timer : ""}`
+			stop_btn.click()
+			user_msg.textContent = game_ended
+			setTimeout(() => user_msg.textContent = "Click start or press a.", 1500)
 		}
 	}, time)
 	state.current_interval = setInterval(() => {
 		state.current_time++
-		if (state.timer) {
+		if (state.timer >= 0) {
 			const rem_time = state.timer - state.current_time
-			const min_to_ms = 1000 * 60
-			const [min, sec] = [
-				rem_time / min_to_ms,
-				rem_time % min_to_ms
-			]
-			timer_ipt.value = `${min || ""}:${sec || "00"}`
+			timer_ipt.value = ms_to_time(rem_time)
 		}
+		console.log(state.current_time)
 	}, 1000)
 })
 
 pause_btn.addEventListener("click", () => {
-	clear_intervals()
 	user_msg.textContent = "Paused. Click start or press a."
+	clear_intervals()
+	console.log(state.interval, state.current_interval)
 })
 
 stop_btn.addEventListener("click", () => {
@@ -242,9 +268,22 @@ stop_btn.addEventListener("click", () => {
 	state.layers.moving_tile = new Konva.Layer()
 	stage.add(state.layers.moving_tile)
 	state.tile = { x: -1, y: -1 }
-	state.interval_time = 1200
+	state.interval_time = 3600
 	state.interval_count = 0
 	state.current_time = 0
+	timer_ipt.disabled = false
+})
+
+timer_ipt.addEventListener("change", evt => {
+	stop_btn.click()
+	const ipt = evt.target.value
+	if (!ipt.length) {
+		state.timer = -1
+		return;
+	}
+	state.timer = time_to_ms(ipt)
+	timer_ipt.disabled = true
+	app.focus()
 })
 
 document.addEventListener("keydown", evt => {

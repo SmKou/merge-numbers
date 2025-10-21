@@ -15,9 +15,29 @@ body {
 	width: 100vw;
 	height: 100vh;
 	display: flex;
+	flex-direction: column-reverse;
 	place-items: center;
 	justify-content: center;
 	align-items: center;
+	font-family: monospace;
+}
+
+nav {
+	margin-bottom: var(--offset);
+	padding: var(--gap);
+	border: 1px solid black;
+	border-radius: 12px;
+
+	input { width: 100% }
+
+	button {
+		margin: var(--gap) var(--offset);
+		padding: 4px 6px;
+		font-family: monospace;
+		&:first-of-type { margin-left: 0 }
+	}
+
+	div { width: 100% }
 }
 
 #app {
