@@ -11,12 +11,22 @@ export class TimerGame extends Game {
 			super.init()
 	}
 
+	start(user_msg, e_timer) {
+		update_user(user_msg)
+		this.time_state.current_interval = setInterval(function keep_current_nrem_time() {
+			this.time_state.current_time++
+			const rem_time = this.time_state.timer - this.time_state.current_time
+			e_timer.value = ms_to_time(rem_time)
+		})
+	}
+
 	update_user(msg, is_ended = false) {
 		super.update_user(msg)
 		const time_played = msg.querySelector("span#time-played")
-		const time = ms_to_time(this.time_state.current_time)
 		if (is_ended)
 			time_played.textContent = ms_to_time(this.time_state.timer)
+		else
+			time_played.textContent = ms_to_time(this.time_state.current_time)
 
 	}
 

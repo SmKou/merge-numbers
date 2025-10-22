@@ -145,6 +145,13 @@ export class Game {
 		this.move_rows()
 	}
 
+	activate_tile(tile) {
+		tile.on('pointerclick', () => {})
+		tile.on('dragstart', () => {})
+		tile.on('dragmove', () => {})
+		tile.on('dragend', () => {})
+	}
+
 	clear_intervals() {
 		const { interval, current_interval } = this.time_state
 		clearInterval(interval)
@@ -154,6 +161,7 @@ export class Game {
 	}
 
 	update_user(msg) {
-		msg.querySelector("span#highest-num").textContent = this.game_state.highest_num
+		const highest_num = msg.querySelector("span#highest-num")
+		highest_num.textContent = this.game_state.highest_num
 	}
 }
