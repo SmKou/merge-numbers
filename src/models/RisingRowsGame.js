@@ -7,6 +7,7 @@ export class RisingRowsGame extends Game {
 
 	init() {
 		super.init()
+		this.game_state.cells[0].forEach(tile => this.activate_tile(tile))
 	}
 
 	start(user_msg) {
@@ -16,12 +17,12 @@ export class RisingRowsGame extends Game {
 		: RISE_INTERVAL
 		this.time_state.interval = setInterval(function raise_rows() {
 			if (!end_game()) {
-				add_row()
-				move_up_rows()
+				this.add_row()
+				this.move_rows()
 			}
 			else {
-				update_user(user_msg, true)
-				clear_intervals()
+				this.update_user(user_msg)
+				this.clear_intervals()
 			}
 		}, time)
 		this.time_state.current_interval = setInterval(function keep_current_time() {

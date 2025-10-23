@@ -28,19 +28,6 @@ const generate_colors = (n) => {
 	return colors
 }
 
-export const time_to_ms = (time) => {
-	const [min, sec] = time.split(":");
-	const int_min = Number(min) || 0
-	const int_sec = Number(sec) || 0
-	return int_min * 60 * 1000 + int_sec * 1000
-}
-
-export const ms_to_time = (ms) => {
-	const min = Math.floor(ms / (1000 * 60)) || "00"
-	const sec = Math.floor(ms % (1000 * 60) / 1000) || "00"
-	return `${min}:${sec}`
-}
-
 export class Game {
 	static SIZE = 48
 	static OFFSET = 16
@@ -108,12 +95,13 @@ export class Game {
 		})
 		tile.add(rect)
 		tile.add(text)
+		this.activate_tile(tile)
 		row.push(tile)
 		this.game_state.layers.cells.add(tile)
 		if (i < COLS)
 			this.add_row(x_idx + 1, row)
-			else
-				this.game_state.cells.unshift(row)
+		else
+			this.game_state.cells.unshift(row)
 	}
 
 	move_rows() {
@@ -148,8 +136,14 @@ export class Game {
 	activate_tile(tile) {
 		tile.on('pointerclick', () => {})
 		tile.on('dragstart', () => {})
-		tile.on('dragmove', () => {})
+		tile.on('dragmove', () => {
+			console.log()
+		})
 		tile.on('dragend', () => {})
+	}
+
+	is_paused() {
+		return !this.time_state.current_interval && this.time_state.current_time
 	}
 
 	clear_intervals() {
@@ -158,6 +152,10 @@ export class Game {
 		clearInterval(current_interval)
 		this.time_state.interval = ""
 		this.time_state.current_interval = ""
+	}
+
+	clear() {
+
 	}
 
 	update_user(msg) {

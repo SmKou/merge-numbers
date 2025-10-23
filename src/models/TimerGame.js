@@ -1,9 +1,9 @@
-import { Game, ms_to_time } from "./Game";
+import { Game } from "./Game";
 
 export class TimerGame extends Game {
 	constructor(timer) {
 		super()
-		this.time_state.timer = timer
+		this.time_state.timer = time_to_ms(timer)
 	}
 
 	init() {
@@ -16,7 +16,7 @@ export class TimerGame extends Game {
 		this.time_state.current_interval = setInterval(function keep_current_nrem_time() {
 			this.time_state.current_time++
 			const rem_time = this.time_state.timer - this.time_state.current_time
-			e_timer.value = ms_to_time(rem_time)
+			e_timer.set_value(ms_to_time(rem_time))
 		})
 	}
 

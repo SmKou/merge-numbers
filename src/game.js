@@ -1,19 +1,32 @@
 import { RisingRowsGame } from './models/RisingRowsGame'
 import { TimerGame } from './models/TimerGame'
 
-const start_game = (is_rising_rows = true, e_timer) => {
+let game;
+
+const start_game = (user_msg, e_timer) => {
+	if (game && game.is_paused()) {
+		game.start(user_msg, e_timer)
+		return;
+	}
 	if (is_rising_rows)
-		return new RisingRowsGame()
-	else
-		return new TimerGame(e_timer)
+		game = new RisingRowsGame()
+	else {
+		const time = e_timer.value
+		game = new TimerGame(e_timer)
+	}
+	game.init()
+	game.start(user_msg, e_timer)
+	return true
 }
 
-const pause_game = (game) => {
+const pause_game = () => {
 	game.clear_intervals()
 }
 
-const stop_game = (mode) => {
-	return new Game(mode)
+const stop_game = (user_msg) => {
+	game.update_user(user_msg)
+	game.clear()
+	game = null
 }
 
 export default {
