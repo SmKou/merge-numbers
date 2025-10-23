@@ -1,3 +1,51 @@
+const left = pos.x - 1 < 0
+	? 0
+	: number_of(pos.x - 1, pos.y) == number_of(pos.x, pos.y)
+		? pos.x * cross_area - collision_area
+		: pos.x * cross_area
+const right = pos.x + 1 > COLS
+	? WIDTH
+	: this.game_state.cells[pos.y][pos.x + 1]
+		? number_of(pos.x + 1, pos.y) == number_of(pos.x, pos.y)
+			? (pos.x + 1) * cross_area + collision_area
+			: pos.x * cross_area + SIZE
+		:
+
+const compare = (p, dp, lim) => dp == 1 ? p + dp > lim : p + dp < lim
+const get_lim = (is_y_axis, p, dp, lim, edge) => {
+	if (compare(p, dp, lim))
+		return edge
+	const next =
+}
+
+if (pos.x == start_pos.x && pos.y == start_pos) {}
+else if (pos.x == start_pos.x) {}
+else if (pos.y == start_pos.y) {}
+else {}
+// 2. progressive move: on diff x-axis and y-axis
+
+const tile = tile_of(pos.x, pos.y)
+const n = number_of(pos.x, pos.y)
+const left = pos.x - 1 < 0
+	? 0
+	: number_of(pos.x - 1, pos.y) == n
+	? (pos.x - 1) * (SIZE + GAP) + SIZE / 2
+	: pos.x * (SIZE + GAP)
+const right = pos.x + 1 == COLS
+	? WIDTH
+	: number_of(pos.x + 1, pos.y) == n
+	? (pos.x + 1) * (SIZE + GAP) - SIZE / 2
+	: (pos.x + 1) * (SIZE + GAP) - GAP
+tile.x(range({ min: left, max: right }))
+
+	const x_lims = {
+	p: pos.x,
+	min: pox.x - 1 < 0
+		? 0
+		: tile
+}
+const y_lims = {}
+
 stage.add(state.layers.cells)
 stage.add(state.layers.moving_tile)
 

@@ -35,11 +35,6 @@ const range = ({ p, min, max }) => (!min && !max)
 	? Math.max(p, max)
 	: Math.min(p, min)
 
-const pos_idxs = (pos) => ({
-	x: Math.floor(pos.x / (SIZE + GAP)),
-	y: (ROWS - 1) - Math.floor(pos.y / (SIZE + GAP))
-})
-
 export const SIZE = 48
 export const OFFSET = 16
 export const GAP = 12
@@ -65,7 +60,6 @@ export class Game {
 		this.game_state = {
 			highest_num: 5,
 			cells: [],
-			values: [],
 			layers: {
 				cells,
 				moving_tile
@@ -81,7 +75,7 @@ export class Game {
 		}
 	}
 
-	add_row(x_idx = 0, tiles = [], nums = []) {
+	add_row(x_idx = 0, row = []) {
 		const n = Math.floor(Math.random() * this.game_state.highest_num)
 		const rect = new Konva.Rect({
 			x: 0,
@@ -108,16 +102,17 @@ export class Game {
 		})
 		tile.add(rect)
 		tile.add(text)
-		this.activate_tile(tile)
-		tiles.push(tile)
-		nums.push(n + 1)
+		const cell = {
+			tile,
+			value: n + 1
+		}
+		this.activate_tile(cell)
+		row.push(cell)
 		this.game_state.layers.cells.add(tile)
 		if (i < COLS)
-			this.add_row(x_idx + 1, tiles, nums)
-		else {
-			this.game_state.cells.unshift(tiles)
-			this.game_state.values.unshift(nums)
-		}
+			this.add_row(x_idx + 1, row)
+		else
+			this.game_state.cells.unshift(row)
 	}
 
 	move_rows() {
@@ -129,13 +124,13 @@ export class Game {
 			? SIZE + GAP
 			: SIZE
 			const speed = dist / period
-			const y_orig = cells[y][0].y()
+			const y_orig = cells[y][0].tile.y()
 			cells[y].forEach(function animate_cell(cell) {
 				if (!cell) return;
 				const anim = new Konva.Animation(frame => {
-					cell.y(y_orig + speed * frame.time)
+					cell.tile.y(y_orig + speed * frame.time)
 					if (speed * frame.time >= dist) {
-						cell.y(y_orig - dist)
+						cell.tile.y(y_orig - dist)
 						anim.stop()
 					}
 				}, layer_cells)
@@ -149,39 +144,40 @@ export class Game {
 		this.move_rows()
 	}
 
-	activate_tile(tile) {
-		const tile_of = (x, y) => this.game_state.cells[pos.y][pos.x]
-		const number_of = (x, y) => this.game_state.values[pos.y][pos.x]
+	get_pos_idx(pos) {
+		const x = Math.floor(pos.x / (SIZE + GAP))
+		const y = (ROWS - 1) - Math.floor(pos.y / (SIZE + GAP))
+		return { x, y }
+	}
 
-		tile.on('pointerclick', () => {})
+	activate_tile({ tile, value }) {
+		const cross_area = SIZE + GAP
+		const collision_area = SIZE / 4 + GAP
+		const tile_of = (x, y) => this.game_state.cells[y][x].tile
+		const number_of = (x, y) => this.game_state.cells[y][x].value
+
+		tile.on('pointerclick', () => {
+			const { x, y } = this.game_state.tile
+			if (x == -1 || y == -1) {
+				const pos = this.get_pos_idx(stage.getPointerPosition())
+				this.game_state.tile.x = pos.x
+				this.game_state.tile.y = pos.y
+			}
+			else {
+				// todo: determine validity of move
+				// if valid => move tile
+				// else => do nothing
+			}
+		})
 		tile.on('dragstart', () => {
-			const pos = pos_idxs(stage.getPointerPosition())
+			const pos = this.get_pos_idx(stage.getPointerPosition())
 			this.game_state.tile.x = pos.x
 			this.game_state.tile.y = pos.y
 		})
+		// not using coordinates from getPointerPosition: (x, y) = player touch point
 		tile.on('dragmove', () => {
 			const pos = pos_idxs(stage.getPointerPosition())
-			const tile = tile_of(pos.x, pos.y)
-			const n = number_of(pos.x, pos.y)
-			const left = pos.x - 1 < 0
-				? 0
-				: number_of(pos.x - 1, pos.y) == n
-				? (pos.x - 1) * (SIZE + GAP) + SIZE / 2
-				: pos.x * (SIZE + GAP)
-			const right = pos.x + 1 == COLS
-				? WIDTH
-				: number_of(pos.x + 1, pos.y) == n
-				? (pos.x + 1) * (SIZE + GAP) - SIZE / 2
-				: (pos.x + 1) * (SIZE + GAP) - GAP
-			tile.x(range({ min: left, max: right }))
-
-				const x_lims = {
-				p: pos.x,
-				min: pox.x - 1 < 0
-					? 0
-					: tile
-			}
-			const y_lims = {}
+			const start_pos = this.game_state.tile
 		})
 		tile.on('dragend', () => {})
 	}
