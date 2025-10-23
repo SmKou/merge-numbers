@@ -28,17 +28,29 @@ const generate_colors = (n) => {
 	return colors
 }
 
-export class Game {
-	static SIZE = 48
-	static OFFSET = 16
-	static GAP = 12
-	static COLS = 6
-	static WIDTH = COLS * SIZE + (COLS - 1) * GAP
-	static ROWS = 8
-	static HEIGHT = ROWS * SIZE + (ROWS - 1) + GAP
-	static MAXIMUM_NUMBER = 10
-	static RISE_INTERVAL = 2400
+const range = ({ p, min, max }) => (!min && !max)
+	|| (min <= p && p <= max)
+	? p
+	: !min
+	? Math.max(p, max)
+	: Math.min(p, min)
 
+const pos_idxs = (pos) => ({
+	x: Math.floor(pos.x / (SIZE + GAP)),
+	y: (ROWS - 1) - Math.floor(pos.y / (SIZE + GAP))
+})
+
+export const SIZE = 48
+export const OFFSET = 16
+export const GAP = 12
+export const COLS = 6
+export const WIDTH = COLS * SIZE + (COLS - 1) * GAP
+export const ROWS = 8
+export const HEIGHT = ROWS * SIZE + (ROWS - 1) + GAP
+export const MAXIMUM_NUMBER = 10
+export const RISE_INTERVAL = 2400
+
+export class Game {
 	constructor() {
 		this.stage = new Konva.Stage({
 			container: 'foreground',
@@ -53,6 +65,7 @@ export class Game {
 		this.game_state = {
 			highest_num: 5,
 			cells: [],
+			values: [],
 			layers: {
 				cells,
 				moving_tile
@@ -68,7 +81,7 @@ export class Game {
 		}
 	}
 
-	add_row(x_idx = 0, row = []) {
+	add_row(x_idx = 0, tiles = [], nums = []) {
 		const n = Math.floor(Math.random() * this.game_state.highest_num)
 		const rect = new Konva.Rect({
 			x: 0,
@@ -96,12 +109,15 @@ export class Game {
 		tile.add(rect)
 		tile.add(text)
 		this.activate_tile(tile)
-		row.push(tile)
+		tiles.push(tile)
+		nums.push(n + 1)
 		this.game_state.layers.cells.add(tile)
 		if (i < COLS)
-			this.add_row(x_idx + 1, row)
-		else
-			this.game_state.cells.unshift(row)
+			this.add_row(x_idx + 1, tiles, nums)
+		else {
+			this.game_state.cells.unshift(tiles)
+			this.game_state.values.unshift(nums)
+		}
 	}
 
 	move_rows() {
@@ -134,10 +150,38 @@ export class Game {
 	}
 
 	activate_tile(tile) {
+		const tile_of = (x, y) => this.game_state.cells[pos.y][pos.x]
+		const number_of = (x, y) => this.game_state.values[pos.y][pos.x]
+
 		tile.on('pointerclick', () => {})
-		tile.on('dragstart', () => {})
+		tile.on('dragstart', () => {
+			const pos = pos_idxs(stage.getPointerPosition())
+			this.game_state.tile.x = pos.x
+			this.game_state.tile.y = pos.y
+		})
 		tile.on('dragmove', () => {
-			console.log()
+			const pos = pos_idxs(stage.getPointerPosition())
+			const tile = tile_of(pos.x, pos.y)
+			const n = number_of(pos.x, pos.y)
+			const left = pos.x - 1 < 0
+				? 0
+				: number_of(pos.x - 1, pos.y) == n
+				? (pos.x - 1) * (SIZE + GAP) + SIZE / 2
+				: pos.x * (SIZE + GAP)
+			const right = pos.x + 1 == COLS
+				? WIDTH
+				: number_of(pos.x + 1, pos.y) == n
+				? (pos.x + 1) * (SIZE + GAP) - SIZE / 2
+				: (pos.x + 1) * (SIZE + GAP) - GAP
+			tile.x(range({ min: left, max: right }))
+
+				const x_lims = {
+				p: pos.x,
+				min: pox.x - 1 < 0
+					? 0
+					: tile
+			}
+			const y_lims = {}
 		})
 		tile.on('dragend', () => {})
 	}
