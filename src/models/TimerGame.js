@@ -1,9 +1,10 @@
 import { Game } from "./Game";
+import { Timer } from "./Timer";
 
 export class TimerGame extends Game {
 	constructor(timer) {
 		super()
-		this.time_state.timer = time_to_ms(timer)
+		this.timer = timer
 	}
 
 	init() {
@@ -11,12 +12,15 @@ export class TimerGame extends Game {
 			super.init()
 	}
 
-	start(user_msg, e_timer) {
-		update_user(user_msg)
+	start(user_msg) {
+		this.update_user(user_msg)
 		this.time_state.current_interval = setInterval(function keep_current_nrem_time() {
 			this.time_state.current_time++
-			const rem_time = this.time_state.timer - this.time_state.current_time
-			e_timer.set_value(ms_to_time(rem_time))
+			this.timer.update_display(this.time_state.current_time)
+			if (end_game()) {
+				this.update_user(user_msg, true)
+				this.clear_intervals()
+			}
 		})
 	}
 
@@ -24,14 +28,13 @@ export class TimerGame extends Game {
 		super.update_user(msg)
 		const time_played = msg.querySelector("span#time-played")
 		if (is_ended)
-			time_played.textContent = ms_to_time(this.time_state.timer)
+			time_played.textContent = this.timer.end()
 		else
-			time_played.textContent = ms_to_time(this.time_state.current_time)
+			time_played.textContent = Timer.ms_to_time(this.time_state.current_time)
 
 	}
 
 	end_game() {
-		const { current_time, timer } = this.time_state
-		return timer > 0 && timer == current_time
+		return this.time_state.current_time == this.timer.end_ms()
 	}
 }

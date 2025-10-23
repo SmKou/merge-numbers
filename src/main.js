@@ -30,7 +30,6 @@ pause_btn.addEventListener("click", () => {
 const stop_btn = $("stop-btn")
 ui.draw_stop(stop_btn)
 stop_btn.addEventListener("click", () => {
-	tog_ipt_mutability(false)
 	game.stop()
 })
 

@@ -3,19 +3,17 @@ import { TimerGame } from './models/TimerGame'
 
 let game;
 
-const start_game = (user_msg, e_timer) => {
-	if (game && game.is_paused()) {
-		game.start(user_msg, e_timer)
+const start_game = (user_msg, c_timer) => {
+	if (game?.is_paused()) {
+		game.start(user_msg)
 		return;
 	}
-	if (is_rising_rows)
+	if (c_timer.is_active())
 		game = new RisingRowsGame()
-	else {
-		const time = e_timer.value
-		game = new TimerGame(e_timer)
-	}
+	else
+		game = new TimerGame(c_timer)
 	game.init()
-	game.start(user_msg, e_timer)
+	game.start(user_msg)
 	return true
 }
 
@@ -25,7 +23,6 @@ const pause_game = () => {
 
 const stop_game = (user_msg) => {
 	game.update_user(user_msg)
-	game.clear()
 	game = null
 }
 

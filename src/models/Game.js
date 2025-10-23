@@ -154,10 +154,6 @@ export class Game {
 		this.time_state.current_interval = ""
 	}
 
-	clear() {
-
-	}
-
 	update_user(msg) {
 		const highest_num = msg.querySelector("span#highest-num")
 		highest_num.textContent = this.game_state.highest_num
