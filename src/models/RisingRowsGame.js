@@ -1,4 +1,5 @@
-import { ms_to_time } from "./Game"
+import { ROWS, RISE_INTERVAL } from "./Game"
+import { ms_to_time } from "./TimerGame"
 
 export class RisingRowsGame extends Game {
 	constructor() {
@@ -16,7 +17,7 @@ export class RisingRowsGame extends Game {
 		? RISE_INTERVAL - current_time
 		: RISE_INTERVAL
 		this.time_state.interval = setInterval(function raise_rows() {
-			if (!end_game()) {
+			if (this.game_state.cells.length >= ROWS - 1) {
 				this.add_row()
 				this.move_rows()
 			}
@@ -33,10 +34,5 @@ export class RisingRowsGame extends Game {
 	update_user(msg) {
 		const time_played = msg.querySelector("span#time-played")
 		time_played.textContent = ms_to_time(this.time_state.current_time)
-	}
-
-	end_game() {
-		const { cells } = this.game_state
-		return cells.length >= ROWS - 1
 	}
 }
