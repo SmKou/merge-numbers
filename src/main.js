@@ -24,39 +24,48 @@ const stage = new Konva.Stage({
 	HEIGHT
 })
 const cells = new Konva.Layer()
+const yrect = new Konva.Rect({
+	x: COLS / 2,
+	y: ROWS / 2,
+	width: SIZE,
+	height: SIZE,
+	fill: 'yellow'
+})
+cells.add(yrect)
 const moving_tile = new Konva.Layer()
 stage.add(cells)
 stage.add(moving_tile)
 
-const rect = new Konva.Rect({
-	x: 0,
-	y: 0,
-	width: SIZE,
-	height: SIZE,
-	fill: 'rgb(250)',
-	cornerRadius: SIZE * 0.12
-})
-const text = new Konva.Text({
-	x: 0,
-	y: 0,
-	width: SIZE,
-	fill: 'black',
-	text: 1,
-	fontSize: 20,
-	align: 'center'
-})
-text.padding((SIZE - text.height()) / 2, 0)
-const tile = new Konva.Group({
-	id: `x0-y0`,
-	x: 0,
-	y: 7 * (SIZE + GAP),
-	draggable: true
-})
-tile.add(rect)
-tile.add(text)
-cells.add(tile)
-
-
+const create_tile = () => {
+	const rect = new Konva.Rect({
+		x: 0,
+		y: 0,
+		width: SIZE,
+		height: SIZE,
+		fill: 'rgb(250)',
+		cornerRadius: SIZE * 0.12
+	})
+	const text = new Konva.Text({
+		x: 0,
+		y: 0,
+		width: SIZE,
+		fill: 'black',
+		text: 1,
+		fontSize: 20,
+		align: 'center'
+	})
+	text.padding((SIZE - text.height()) / 2, 0)
+	const tile = new Konva.Group({
+		id: `x0-y0`,
+		x: 0,
+		y: 7 * (SIZE + GAP),
+		draggable: true
+	})
+	tile.add(rect)
+	tile.add(text)
+	cells.add(tile)
+}
+create_tile()
 
 
 const timer_ipt = $("timer-ipt")
