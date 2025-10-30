@@ -2,72 +2,82 @@ import Konva from "konva"
 import ui from './ui'
 import './style.css'
 
-const SIZE = 48
-const OFFSET = 16
-const GAP = 12
-const COLS = 6
-const WIDTH = COLS * SIZE + (COLS - 1) * GAP
-const ROWS = 8
-const HEIGHT = ROWS * SIZE + (ROWS - 1) * GAP
+const size = 48
+const offset = 16
+const gap = 12
+const rows = 8
+const cols = 6
+const width = cols * size + (cols - 1) * gap
+const height = rows * size + (rows - 1) * gap
 
-const $ = (id) => document.querySelector("#" + id)
-HTMLElement.prototype.$ = (id) => this.querySelector("#" + id)
+const tiles_sample = [
+	[1, 2, 4, 2, 3, 1],
+	[2, -1, 1, 3, -1, -1],
+	[-1, -1, 5, -1, -1, -1]
+]
 
-const app = $("app")
-app.style.width = (WIDTH + OFFSET * 2) + "px"
-app.style.height = (HEIGHT + OFFSET * 2) + "px"
+const layers = {
+	cells: new Konva.Layer(),
+	moving_tile: new Konva.Layer()
+}
+
+const app = document.getElementById('app')
+app.style.width = (width + offset * 2) + "px"
+app.style.height = (height + offset * 2) + "px"
 document.querySelector("nav").style.width = app.style.width
 
 const stage = new Konva.Stage({
 	container: 'foreground',
-	WIDTH,
-	HEIGHT
+	width,
+	height
 })
-const cells = new Konva.Layer()
-const yrect = new Konva.Rect({
-	x: COLS / 2,
-	y: ROWS / 2,
-	width: SIZE,
-	height: SIZE,
-	fill: 'yellow'
-})
-cells.add(yrect)
-const moving_tile = new Konva.Layer()
-stage.add(cells)
-stage.add(moving_tile)
+stage.add(layers.cells)
+stage.add(layers.moving_tile)
 
-const create_tile = () => {
-	const rect = new Konva.Rect({
-		x: 0,
-		y: 0,
-		width: SIZE,
-		height: SIZE,
-		fill: 'rgb(250)',
-		cornerRadius: SIZE * 0.12
+for (let y = tiles_sample.length - 1; y >= 0; --y) {
+	tiles_sample[y].forEach((n, idx) => {
+		if (n < 1)
+			return;
+		const rect = new Konva.Rect({
+			x: 0,
+			y: 0,
+			width: size,
+			height: size,
+			fill: 'pink',
+			stroke: 'black',
+			cornerRadius: size * .12
+		})
+		const text = new Konva.Text({
+			x: 0,
+			y: 0,
+			width: size,
+			fill: 'black',
+			text: n,
+			fontSize: 20,
+			align: 'center'
+		})
+		text.padding((size - text.height()) / 2, 0)
+		const tile = new Konva.Group({
+			x: size * idx + gap * idx,
+			y: size * (rows - 1 - y) + gap * (rows - 1 - y),
+			draggable: true
+		})
+		tile.add(rect)
+		tile.add(text)
+
+		tile.on('pointerclick', () => {})
+
+		tile.on('dragstart', () => {})
+
+		tile.on('dragmove', () => {})
+
+		tile.on('dragend', () => {})
+
+		layers.cells.add(tile)
 	})
-	const text = new Konva.Text({
-		x: 0,
-		y: 0,
-		width: SIZE,
-		fill: 'black',
-		text: 1,
-		fontSize: 20,
-		align: 'center'
-	})
-	text.padding((SIZE - text.height()) / 2, 0)
-	const tile = new Konva.Group({
-		id: `x0-y0`,
-		x: 0,
-		y: 7 * (SIZE + GAP),
-		draggable: true
-	})
-	tile.add(rect)
-	tile.add(text)
-	cells.add(tile)
 }
-create_tile()
 
-
+const $ = (id) => document.querySelector("#" + id)
 const timer_ipt = $("timer-ipt")
 // const timer = new Timer(timer_ipt)
 const user_msg = $("user-msg")

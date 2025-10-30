@@ -352,3 +352,72 @@ document.addEventListener("keydown", evt => {
 	}
 })
 ```
+---
+
+**Non-working code**
+```js
+const SIZE = 48
+const OFFSET = 16
+const GAP = 12
+const COLS = 6
+const WIDTH = COLS * SIZE + (COLS - 1) * GAP
+const ROWS = 8
+const HEIGHT = ROWS * SIZE + (ROWS - 1) * GAP
+
+const $ = (id) => document.querySelector("#" + id)
+HTMLElement.prototype.$ = (id) => this.querySelector("#" + id)
+
+const app = $("app")
+app.style.width = (WIDTH + OFFSET * 2) + "px"
+app.style.height = (HEIGHT + OFFSET * 2) + "px"
+document.querySelector("nav").style.width = app.style.width
+
+const stage = new Konva.Stage({
+	container: 'foreground',
+	WIDTH,
+	HEIGHT
+})
+const cells = new Konva.Layer()
+const yrect = new Konva.Rect({
+	x: COLS / 2,
+	y: ROWS / 2,
+	width: SIZE,
+	height: SIZE,
+	fill: 'yellow'
+})
+cells.add(yrect)
+const moving_tile = new Konva.Layer()
+stage.add(cells)
+stage.add(moving_tile)
+
+const create_tile = () => {
+	const rect = new Konva.Rect({
+		x: 0,
+		y: 0,
+		width: SIZE,
+		height: SIZE,
+		fill: 'rgb(250)',
+		cornerRadius: SIZE * 0.12
+	})
+	const text = new Konva.Text({
+		x: 0,
+		y: 0,
+		width: SIZE,
+		fill: 'black',
+		text: 1,
+		fontSize: 20,
+		align: 'center'
+	})
+	text.padding((SIZE - text.height()) / 2, 0)
+	const tile = new Konva.Group({
+		id: `x0-y0`,
+		x: 0,
+		y: 7 * (SIZE + GAP),
+		draggable: true
+	})
+	tile.add(rect)
+	tile.add(text)
+	cells.add(tile)
+}
+create_tile()
+```

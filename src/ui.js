@@ -1,6 +1,6 @@
 const get_cvs = (e) => e.querySelector("canvas")
 
-const draw_start = (btn) => {
+const start = (btn) => {
 	const cvs = get_cvs(btn)
 	cvs.width = 20
 	cvs.height = 20
@@ -14,7 +14,7 @@ const draw_start = (btn) => {
 	ctx.fill()
 }
 
-const draw_pause = (btn) => {
+const pause = (btn) => {
 	const cvs = get_cvs(btn)
 	cvs.width = 20
 	cvs.height = 20
@@ -24,7 +24,7 @@ const draw_pause = (btn) => {
 	ctx.fillRect(10, 2, 6, 18)
 }
 
-const draw_stop = (btn) => {
+const stop = (btn) => {
 	const cvs = get_cvs(btn)
 	cvs.width = 20
 	cvs.height = 20
@@ -34,7 +34,7 @@ const draw_stop = (btn) => {
 }
 
 export default {
-	start: draw_start,
-	pause: draw_pause,
-	stop: draw_stop
+	start,
+	pause,
+	stop
 }
